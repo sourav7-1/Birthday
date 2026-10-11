@@ -1,0 +1,225 @@
+/* Design tokens — see docs/DESIGN.md. */
+:root {
+  --ink: #070407;
+  --burgundy: #2a0c14;
+  --wine: #4a1622;
+  --amber: #f2b66d;
+  --champagne: #ecd9b0;
+  --gold: #d6ad62;
+  --blush: #d9a5a2;
+  --cream: #f4ece0;
+  --text: #efe6da;
+  --muted: rgb(239 230 218 / 0.62);
+  --faint: rgb(239 230 218 / 0.38);
+  --hairline: rgb(214 173 98 / 0.28);
+
+  --serif: 'Cormorant Garamond', 'Noto Serif Bengali', 'Cormorant', Garamond, 'Nirmala UI', serif;
+  --sans: 'Jost', 'Hind Siliguri', 'Avenir Next', 'Segoe UI', 'Nirmala UI', system-ui, sans-serif;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-fast: 240ms;
+  --t-med: 600ms;
+  --t-slow: 1400ms;
+  --t-cine: 2400ms;
+
+  --gutter: clamp(16px, 4vw, 48px);
+
+  color-scheme: dark;
+  color: var(--text);
+  background: var(--ink);
+  font: 300 17px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: none; }
+body { background: var(--ink); }
+#root { position: fixed; inset: 0; }
+
+/* --- Atmosphere layers: CSS glow behind a transparent canvas, vignette on top --- */
+.backdrop {
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(55% 45% at 50% 58%, rgb(242 182 109 / 0.15), transparent 70%),
+    radial-gradient(90% 65% at 50% 105%, rgb(74 22 34 / 0.6), transparent 70%),
+    radial-gradient(70% 60% at 50% 40%, rgb(42 12 20 / 0.5), transparent 80%),
+    var(--ink);
+  animation: breathe 11s var(--ease-in-out) infinite alternate;
+  transition: filter 3s var(--ease-in-out);
+}
+body[data-scene='message'] .backdrop { filter: brightness(1.45) saturate(1.1); }
+@keyframes breathe { from { opacity: 0.82; } to { opacity: 1; } }
+.stage { position: fixed !important; inset: 0; }
+.vignette {
+  position: fixed; inset: 0; pointer-events: none;
+  background: radial-gradient(125% 95% at 50% 50%, transparent 55%, rgb(0 0 0 / 0.72) 100%);
+}
+
+/* --- Typography --- */
+.display {
+  font: 300 clamp(2rem, 5.6vw, 4.4rem)/1.3 var(--serif);
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-wrap: balance;
+}
+.eyebrow {
+  font: 400 0.8rem/1.4 var(--sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 1.1rem;
+}
+.lede { color: var(--muted); font-size: clamp(0.95rem, 1.6vw, 1.1rem); margin: 1rem 0 0; }
+
+/* --- Screens --- */
+.screen {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  padding: max(var(--gutter), env(safe-area-inset-top)) var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+.screen :is(button, a, input, label) { pointer-events: auto; }
+
+/* Countdown */
+.clock {
+  display: grid; grid-template-columns: repeat(4, auto);
+  margin-top: clamp(2.2rem, 6vh, 3.6rem);
+}
+.unit { display: flex; flex-direction: column; align-items: center; padding: 0 clamp(0.7rem, 3vw, 2.6rem); }
+.unit + .unit { border-left: 1px solid var(--hairline); }
+.digits {
+  font: 300 clamp(2.5rem, 9vw, 5.6rem)/1 var(--serif);
+  color: var(--cream);
+  display: flex;
+}
+.digit {
+  display: inline-block; width: 0.56em; text-align: center;
+  font-variant-numeric: lining-nums tabular-nums;
+  animation: digit-in 700ms var(--ease-out) both;
+}
+@keyframes digit-in { from { opacity: 0.15; transform: translateY(-0.12em); filter: blur(3px); } }
+.unit-label {
+  margin-top: 0.9rem;
+  font: 400 0.72rem/1.3 var(--sans); letter-spacing: 0.06em; color: var(--faint);
+}
+
+/* Reveal: one shared entrance. Delays come from TIMING in src/three/spec.ts. */
+.reveal { animation: reveal var(--t-slow) var(--ease-out) var(--d, 0s) both; }
+.reveal.slow { animation-duration: var(--t-cine); }
+@keyframes reveal { from { opacity: 0; transform: translateY(14px); filter: blur(6px); } }
+
+/* --- Buttons --- */
+.btn {
+  font: 400 0.9rem/1.3 var(--sans); letter-spacing: 0.04em;
+  color: var(--text); background: none; border: 1px solid var(--hairline);
+  min-height: 48px; padding: 0 1.6rem; border-radius: 999px; cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:hover { border-color: var(--gold); }
+.btn:focus-visible { outline: 2px solid var(--champagne); outline-offset: 3px; }
+.btn-primary { background: rgb(214 173 98 / 0.14); border-color: rgb(214 173 98 / 0.55); color: var(--cream); }
+.btn-primary:hover { background: rgb(214 173 98 / 0.24); }
+.btn-large { min-height: 56px; padding: 0 2.2rem; }
+.btn-ghost { color: var(--muted); }
+.btn-small { min-height: 44px; padding: 0 1.1rem; font-size: 0.82rem; }
+.countdown .btn { margin-top: 2.6rem; }
+
+/* --- HUD --- */
+.hud {
+  position: fixed; z-index: 2;
+  top: max(12px, env(safe-area-inset-top)); left: 16px; right: 16px;
+  display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px 12px;
+  pointer-events: none;
+}
+.hud .badge { margin-right: auto; }
+.hud > * { pointer-events: auto; }
+.hud .btn, .badge { white-space: nowrap; }
+.pause { margin-left: auto; background: rgb(7 4 7 / 0.35); backdrop-filter: blur(6px); }
+.pause + .sound { margin-left: 0; }
+.sound { margin-left: auto; background: rgb(7 4 7 / 0.35); backdrop-filter: blur(6px); }
+.badge {
+  font: 400 0.68rem/1 var(--sans); letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink); background: var(--champagne); padding: 0.55rem 0.8rem; border-radius: 999px; text-decoration: none;
+}
+
+/* --- In-experience overlays: title top, controls bottom, cake in the middle --- */
+.stage-ui { justify-content: space-between; padding-top: max(72px, env(safe-area-inset-top)); }
+.cake-title .display { font-size: clamp(2rem, 5vw, 3.6rem); }
+.cake-title .eyebrow { margin-bottom: 0.8rem; }
+.stage-ui::before {
+  content: ''; position: absolute; inset: auto 0 0 0; height: 42%; z-index: -1;
+  background: linear-gradient(transparent, rgb(7 4 7 / 0.78) 70%);
+}
+.panel {
+  display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
+  width: min(560px, 100%);
+  margin-top: auto;
+}
+.prompt { font: 400 clamp(1.2rem, 2.8vw, 1.6rem)/1.5 var(--serif); margin: 0; color: var(--cream); text-wrap: balance; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+.mic-status { display: flex; align-items: center; gap: 0.6rem; margin: 0; font-size: 0.85rem; color: var(--muted); }
+.mic-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--faint); flex: none; }
+.mic-dot.listening { background: var(--amber); border-color: var(--amber); animation: pulse 1.6s ease-in-out infinite; }
+.mic-dot:is(.denied, .no-device, .unsupported, .error) { border-color: var(--blush); }
+@keyframes pulse { 50% { opacity: 0.35; } }
+.mic-tools { display: grid; grid-template-columns: 1fr 1.3fr; align-items: center; gap: 0.4rem 1rem; width: min(440px, 100%); }
+.mic-tools .fine { grid-column: 1 / -1; }
+.meter { position: relative; height: 4px; border-radius: 2px; background: rgb(239 230 218 / 0.12); overflow: hidden; }
+.meter span { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, var(--gold), var(--amber)); transition: width 80ms linear; }
+.meter i { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--cream); }
+.sens { display: flex; align-items: center; gap: 0.8rem; font-size: 0.8rem; color: var(--faint); }
+.sens input { flex: 1; accent-color: var(--gold); min-height: 32px; }
+.fine { margin: 0; font-size: 0.72rem; color: var(--faint); }
+
+/* Finale: message in the dark upper space, cake low in frame */
+.finale-ui { justify-content: flex-start; padding-top: max(10vh, 72px); }
+.finale { display: flex; flex-direction: column; align-items: center; max-width: 40rem; }
+.finale-heading { font-size: clamp(2.1rem, 5vw, 3.4rem); margin-bottom: 1.4rem; white-space: pre-line; text-align: center; }
+.finale-line {
+  margin: 0.2rem 0; color: var(--text);
+  font: 400 clamp(1.05rem, 2.1vw, 1.35rem)/1.75 var(--serif);
+  text-shadow: 0 1px 18px rgb(0 0 0 / 0.8);
+  text-align: center;
+}
+.signature { margin: 1.6rem 0 0; font: italic 400 1.2rem var(--serif); color: var(--gold); }
+.finale-actions .btn { white-space: nowrap; padding: 0 0.9rem; }
+.finale-actions { position: fixed; bottom: max(20px, env(safe-area-inset-bottom)); left: 50%; translate: -50% 0; display: flex; gap: 10px; }
+@media (min-width: 720px) { .finale-actions { left: auto; right: 24px; translate: none; } }
+.loading { position: fixed; bottom: 12px; left: 0; right: 0; text-align: center; margin: 0; font-size: 0.8rem; color: var(--faint); }
+
+.diagnostic { pointer-events: auto; text-align: left; align-items: flex-start; max-width: 46rem; margin: 0 auto; }
+.diagnostic ul { color: var(--blush); padding-left: 1.2rem; }
+.diagnostic code { font-size: 0.85em; color: var(--champagne); }
+.fallback-note { position: fixed; bottom: 8px; left: 0; right: 0; text-align: center; font-size: 0.72rem; color: var(--faint); margin: 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@media (max-width: 480px) {
+  /* Preview badge + two buttons wrap to two rows on phones: keep the HUD one row by shrinking the badge, and start content below it. */
+  .hud .badge { font-size: 0.6rem; letter-spacing: 0.08em; padding: 0.5rem 0.6rem; }
+  .hud .btn-small { padding: 0 0.75rem; font-size: 0.76rem; }
+  .finale-ui { padding-top: 84px; }
+  .unit { padding: 0 0.7rem; }
+  .unit-label { letter-spacing: 0.2em; font-size: 0.58rem; }
+  .actions { flex-direction: column; width: 100%; }
+  .actions .btn { width: 100%; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .stage-ui { padding-top: max(16px, env(safe-area-inset-top)); }
+  .finale-ui { padding-top: 64px; }
+  .cake-title .eyebrow { display: none; }
+  .cake-title .display { font-size: 1.5rem; }
+  .prompt { font-size: 1.05rem; }
+  .panel { gap: 0.5rem; }
+  .btn-large { min-height: 46px; }
+  .mic-status { font-size: 0.75rem; }
+  .finale-heading { font-size: 1.8rem; margin-bottom: 0.6rem; }
+  .finale-line { font-size: 0.95rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .digit, .backdrop, .mic-dot.listening { animation: none !important; }
+}
