@@ -64,7 +64,7 @@ export const birthday: BirthdayConfig = {
     ],
     signature: 'Love you Eshika 💝',
   },
-  wishPrompt: 'মনে মনে একটি ইচ্ছা করো। একটু শ্বাস নাও। তারপর মোমবাতিগুলো নিভিয়ে দাও।',
+  wishPrompt: '',
   showCountdown: true,
   autoStart: true,
   afterTarget: 'gate',

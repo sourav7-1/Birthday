@@ -49,8 +49,8 @@ export function WishPanel({ onBlow, announce }: { onBlow: () => void; announce: 
   const listening = status === 'listening' || status === 'requesting'
 
   return (
-    <section className="panel wish" aria-labelledby="wish-prompt">
-      <p id="wish-prompt" className="prompt reveal">{birthday.wishPrompt}</p>
+    <section className="panel wish" aria-labelledby={birthday.wishPrompt ? 'wish-prompt' : undefined}>
+      {birthday.wishPrompt && <p id="wish-prompt" className="prompt reveal">{birthday.wishPrompt}</p>}
       <div className="actions reveal" style={delay(0.4)}>
         <button className="btn btn-primary btn-large" onClick={onBlow}>{ui.blow}</button>
         {listening
